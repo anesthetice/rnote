@@ -226,6 +226,8 @@ impl RnCanvas {
 
         self.dismiss_output_file_modified_toast();
 
+        use std::time::Instant;
+        let _global_start = Instant::now();
         let file_write_operation = async move {
             let bytes = rnote_bytes_receiver.await??;
             self.set_output_file_expect_write(true);
@@ -264,6 +266,8 @@ impl RnCanvas {
 
         self.set_unsaved_changes(false);
         self.set_save_in_progress(false);
+
+        tracing::info!("total : {:.5}", _global_start.elapsed().as_secs_f64());
 
         Ok(true)
     }
