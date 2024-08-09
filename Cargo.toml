@@ -98,9 +98,6 @@ piet-cairo = { git = "https://github.com/linebender/piet", rev = "02eb5f0152e893
 debug = true
 opt-level = 2
 
-[build]
-rustflags = ["-C", "target-cpu=native"]
-
 [profile.release]
 codegen-units = 1
 lto = "fat"
