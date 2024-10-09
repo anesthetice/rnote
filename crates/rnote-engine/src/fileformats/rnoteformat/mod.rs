@@ -10,7 +10,6 @@ pub(crate) mod legacy;
 pub(crate) mod maj0min12;
 pub(crate) mod methods;
 
-use cairo::Version;
 // Re-exports
 pub use methods::{CompressionMethod, SerializationMethod};
 
@@ -86,15 +85,76 @@ impl FileFormatLoader for RnoteFile {
             }
         }
 
-        let mut version: [u8; 3] = [0; 3];
-        version.copy_from_slice(
-            bytes
-                .get(cursor..cursor + 3)
-                .ok_or_else(|| anyhow::anyhow!("Failed to get version, insufficient bytes"))?,
+        let mut major: [u8; 8] = [0; 8];
+        major.copy_from_slice(
+            bytes.get(cursor..cursor + 8).ok_or_else(|| {
+                anyhow::anyhow!("Failed to get version.major, insufficient bytes")
+            })?,
         );
-        cursor += 3;
+        cursor += 8;
+        let major = u64::from_le_bytes(major);
 
-        let version = semver::Version::new(version[0] as u64, version[1] as u64, version[2] as u64);
+        let mut minor: [u8; 8] = [0; 8];
+        minor.copy_from_slice(
+            bytes.get(cursor..cursor + 8).ok_or_else(|| {
+                anyhow::anyhow!("Failed to get version.minor, insufficient bytes")
+            })?,
+        );
+        cursor += 8;
+        let minor = u64::from_le_bytes(minor);
+
+        let mut patch: [u8; 8] = [0; 8];
+        patch.copy_from_slice(
+            bytes.get(cursor..cursor + 8).ok_or_else(|| {
+                anyhow::anyhow!("Failed to get version.patch, insufficient bytes")
+            })?,
+        );
+        cursor += 8;
+        let patch = u64::from_le_bytes(patch);
+
+        let mut pre_release_size: [u8; 2] = [0; 2];
+        pre_release_size.copy_from_slice(bytes.get(cursor..cursor + 2).ok_or_else(|| {
+            anyhow::anyhow!("Failed to get size of version.pre, insufficient bytes")
+        })?);
+        cursor += 2;
+        let pre_release_size = usize::from(u16::from_le_bytes(pre_release_size));
+
+        let pre_release = if pre_release_size == 0 {
+            semver::Prerelease::EMPTY
+        } else {
+            let text =
+                core::str::from_utf8(bytes.get(cursor..cursor + pre_release_size).ok_or_else(
+                    || anyhow::anyhow!("Failed to get version.pre, insufficient bytes"),
+                )?)?;
+            cursor += pre_release_size;
+            semver::Prerelease::new(text)?
+        };
+
+        let mut build_metadata_size: [u8; 2] = [0; 2];
+        build_metadata_size.copy_from_slice(bytes.get(cursor..cursor + 2).ok_or_else(|| {
+            anyhow::anyhow!("Failed to get size of version.build, insufficient bytes")
+        })?);
+        cursor += 2;
+        let build_metadata_size = usize::from(u16::from_le_bytes(build_metadata_size));
+
+        let build_metadata = if build_metadata_size == 0 {
+            semver::BuildMetadata::EMPTY
+        } else {
+            let text =
+                core::str::from_utf8(bytes.get(cursor..cursor + build_metadata_size).ok_or_else(
+                    || anyhow::anyhow!("Failed to get version.build, insufficient bytes"),
+                )?)?;
+            cursor += build_metadata_size;
+            semver::BuildMetadata::new(text)?
+        };
+
+        let version = semver::Version {
+            major,
+            minor,
+            patch,
+            pre: pre_release,
+            build: build_metadata,
+        };
 
         let mut header_size: [u8; 4] = [0; 4];
         header_size.copy_from_slice(
