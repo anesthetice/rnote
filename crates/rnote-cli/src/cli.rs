@@ -1,16 +1,16 @@
 // Imports
-use crate::{export, import, mutate, test};
+use crate::{export, import, mutate, test, thumbnail};
 use anyhow::Context;
-use clap::builder::PossibleValuesParser;
 use clap::Parser;
+use clap::builder::PossibleValuesParser;
 use rnote_compose::SplitOrder;
+use rnote_engine::SelectionCollision;
 use rnote_engine::engine::export::{
     DocExportFormat, DocPagesExportFormat, DocPagesExportPrefs, SelectionExportFormat,
     SelectionExportPrefs,
 };
 use rnote_engine::engine::import::XoppImportPrefs;
 use rnote_engine::fileformats::rnoteformat;
-use rnote_engine::SelectionCollision;
 use smol::fs::File;
 use smol::io::{AsyncReadExt, AsyncWriteExt};
 use std::path::{Path, PathBuf};
@@ -91,6 +91,16 @@ pub(crate) enum Command {
         compression_method: Option<String>,
         #[arg(short = 'v', long, action = clap::ArgAction::Set)]
         compression_level: Option<u8>,
+    },
+    /// Generate rnote thumbail from a given file
+    Thumbnail {
+        /// Input rnote file
+        rnote_file: PathBuf,
+        /// Size of the thumbnail in bits
+        #[arg(short, long, default_value_t = 256)]
+        size: u32,
+        /// Output path of the thumbnail
+        output: PathBuf,
     },
 }
 
@@ -286,6 +296,14 @@ pub(crate) async fn run() -> anyhow::Result<()> {
             )
             .await?;
             println!("Mutate finished!");
+        }
+        Command::Thumbnail {
+            rnote_file,
+            size,
+            output,
+        } => {
+            println!("Thumbnail...");
+            thumbnail::run_thumbnail(rnote_file, size, output).await?;
         }
     }
 

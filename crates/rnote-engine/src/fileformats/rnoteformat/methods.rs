@@ -73,7 +73,7 @@ impl CompressionMethod {
                 tracing::warn!("Cannot update the compression level of 'None'");
                 Ok(())
             }
-            Self::Gzip(ref mut curr) => {
+            Self::Gzip(curr) => {
                 if !(0..=9).contains(&new) {
                     Err(anyhow::anyhow!(
                         "Invalid compression level for Gzip, expected a value between 0 and 9"
@@ -83,7 +83,7 @@ impl CompressionMethod {
                     Ok(())
                 }
             }
-            Self::Zstd(ref mut curr) => {
+            Self::Zstd(curr) => {
                 if !zstd::compression_level_range().contains(&i32::from(new)) {
                     Err(anyhow::anyhow!(
                         "Invalid compression level for Zstd, expected a value between 0 and 22"

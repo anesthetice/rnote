@@ -1,7 +1,7 @@
 // Imports
 use crate::fileformats::rnoteformat::{
-    methods::{CompressionMethod, SerializationMethod},
     RnoteHeader,
+    methods::{CompressionMethod, SerializationMethod},
 };
 use serde::{Deserialize, Serialize};
 use std::mem::discriminant;
@@ -117,7 +117,7 @@ impl CompressionMethod {
     pub fn set_compression_level(&mut self, level: CompressionLevel) {
         match self {
             Self::None => (),
-            Self::Gzip(ref mut val) => {
+            Self::Gzip(val) => {
                 *val = match level {
                     CompressionLevel::VeryHigh => 8,
                     CompressionLevel::High => 6,
@@ -127,7 +127,7 @@ impl CompressionMethod {
                     CompressionLevel::None => unreachable!(),
                 }
             }
-            Self::Zstd(ref mut val) => {
+            Self::Zstd(val) => {
                 *val = match level {
                     CompressionLevel::VeryHigh => 17,
                     CompressionLevel::High => 13,
