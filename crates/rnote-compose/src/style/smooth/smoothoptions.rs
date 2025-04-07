@@ -115,6 +115,69 @@ impl<'de> Deserialize<'de> for SmoothOptions {
     where
         D: serde::Deserializer<'de>,
     {
+        /* Adaptor code I probably won't have to use again (hopefully)
+        #[derive(Debug, Clone, Serialize, Deserialize)]
+        #[serde(rename = "shape_style")]
+        struct ShapeStylePrecursor {
+            #[serde(rename = "line_edge")]
+            pub line_cap: LineCap,
+            #[serde(rename = "line_style")]
+            pub line_style: LineStyle,
+        }
+
+        #[derive(Deserialize)]
+        #[serde(default, rename = "smooth_options")]
+        struct SmoothOptionsPrecursor2 {
+            #[serde(rename = "stroke_width", with = "crate::serialize::f64_dp3")]
+            pub stroke_width: f64,
+            #[serde(rename = "stroke_color")]
+            pub stroke_color: Option<Color>,
+            #[serde(rename = "fill_color")]
+            pub fill_color: Option<Color>,
+            #[serde(rename = "pressure_curve")]
+            pub pressure_curve: PressureCurve,
+            #[serde(rename = "shape_style")]
+            pub shape_style: ShapeStylePrecursor,
+        }
+
+        impl From<SmoothOptions> for SmoothOptionsPrecursor2 {
+            fn from(value: SmoothOptions) -> Self {
+                Self {
+                    stroke_width: value.stroke_width,
+                    stroke_color: value.stroke_color,
+                    fill_color: value.fill_color,
+                    pressure_curve: value.pressure_curve,
+                    shape_style: ShapeStylePrecursor {
+                        line_cap: value.line_cap,
+                        line_style: value.line_style,
+                    },
+                }
+            }
+        }
+
+        impl Default for SmoothOptionsPrecursor2 {
+            fn default() -> Self {
+                SmoothOptions::default().into()
+            }
+        }
+
+        impl From<SmoothOptionsPrecursor2> for SmoothOptionsPrecursor {
+            fn from(value: SmoothOptionsPrecursor2) -> Self {
+                Self {
+                    stroke_width: value.stroke_width,
+                    stroke_color: value.stroke_color,
+                    fill_color: value.fill_color,
+                    pressure_curve: value.pressure_curve,
+                    line_style: value.shape_style.line_style,
+                    line_cap: value.shape_style.line_cap,
+                }
+            }
+        }
+
+        let precursor = SmoothOptionsPrecursor2::deserialize(deserializer)?;
+        let precursor: SmoothOptionsPrecursor = SmoothOptionsPrecursor::from(precursor);
+        */
+
         #[derive(Deserialize)]
         #[serde(default, rename = "smooth_options")]
         struct SmoothOptionsPrecursor {

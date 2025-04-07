@@ -65,7 +65,7 @@ pub(crate) fn locale_dir() -> anyhow::Result<PathBuf> {
 pub(crate) fn setup_env() -> anyhow::Result<()> {
     // workaround for issue 1061 https://github.com/flxzt/rnote/issues/1061
     // SAFETY: this setup only happens while still being single-threaded
-    unsafe { std::env::set_var("GSK_RENDERER", "gl") };
+    // unsafe { std::env::set_var("GSK_RENDERER", "gl") };
 
     if cfg!(target_os = "windows") {
         let data_dir = data_dir()?;
@@ -146,7 +146,7 @@ pub fn window_styling_workaround() -> anyhow::Result<()> {
           box-shadow: 0 3px 9px 1px alpha(black, 0.35),
                       0 0 0 1px alpha(black, 0.18);
         }
-        
+
         .csd:backdrop {
           box-shadow: 0 3px 9px 1px transparent,
                       0 2px 6px 2px alpha(black, 1),
