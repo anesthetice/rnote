@@ -1019,12 +1019,10 @@ impl RnSettingsPanel {
                             .selected(),
                     )
                     .unwrap();
-                    println!("prev: {:#?}", canvas.engine_ref().save_prefs);
                     canvas
                         .engine_mut()
                         .save_prefs
                         .update_compression_level(compression_level);
-                    println!("curr: {:#?}", canvas.engine_ref().save_prefs);
                     settings_panel.refresh_file_compression_level_row(
                         &canvas.engine_ref().save_prefs.clone(),
                     );
